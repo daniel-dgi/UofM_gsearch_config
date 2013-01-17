@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- $Id: copyXml.xslt 5716 2006-10-10 14:09:04Z gertsp $ -->
+<xsl:stylesheet version="1.0"
+		xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+		xmlns:zs="http://www.loc.gov/zing/srw/"
+		xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+		xmlns:dc="http://purl.org/dc/elements/1.1/">
+	<xsl:output method="xml" indent="yes" encoding="UTF-8"/>
+	<xsl:template match='/resultPage'>
+		<resultPage>
+			<xsl:apply-templates select='gfindObjects'/>				
+		</resultPage>	
+	</xsl:template>
+	<xsl:template match="gfindObjects">
+		<gfindObjects>
+			<xsl:attribute name="hitTotal"><xsl:value-of select='@hitTotal'/></xsl:attribute>
+			<xsl:attribute name="hitPageSize"><xsl:value-of select='@hitPageSize'/></xsl:attribute>
+			<xsl:attribute name="hitPageStart"><xsl:value-of select='@hitPageStart'/></xsl:attribute>
+			<xsl:attribute name="query"><xsl:value-of select='@query'/></xsl:attribute>
+		<objects>
+			<xsl:apply-templates select='./objects/object'/>
+		</objects>
+		</gfindObjects>
+	</xsl:template>
+	<xsl:template match="object">
+		<object>
+			<xsl:attribute name="no"><xsl:value-of select='@no'/></xsl:attribute>
+			<xsl:attribute name="score"><xsl:value-of select='@score'/></xsl:attribute>
+			<xsl:apply-templates select='field'/>
+		</object>
+	</xsl:template>
+	<xsl:template match="field">
+		<xsl:if test="@name='PID' or contains(@name,'dc.') or contains(@name,'mods.')">
+			<field>
+				<xsl:attribute name='name'><xsl:value-of select='@name'/></xsl:attribute>
+				<xsl:value-of select='.'/>
+			</field>
+		</xsl:if>
+		
+	</xsl:template>
+</xsl:stylesheet>	
+
+
+
+
+				
+
+
+
+
