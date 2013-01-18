@@ -10,7 +10,7 @@
 
 	<xsl:param name="ERRORMESSAGE" select="''"/>
 
-	<xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/config/rest/basicCommon.xslt"/>
+	<xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/rest/basicCommon.xslt"/>
 
 	<xsl:template name="opSpecifics">
 		<xsl:variable name="REPOSITORYNAME" select="@repositoryName"/>

@@ -16,7 +16,7 @@
 	<xsl:variable name="PAGELASTNO" select="/resultPage/browseIndex/terms/term[position()=last()]/@no"/>
 	<xsl:variable name="PAGELASTTERM" select="/resultPage/browseIndex/terms/term[position()=last()]/text()"/>
 
-	<xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/config/rest/basicCommon.xslt"/>
+	<xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/rest/basicCommon.xslt"/>
 
 	<xsl:variable name="EQCHAR">
 		<xsl:choose>
