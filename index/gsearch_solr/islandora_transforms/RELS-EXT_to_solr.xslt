@@ -13,11 +13,20 @@
 	    
 	    <xsl:for-each select="$content//rdf:Description/*[@rdf:resource]">
 			<field>
-			     <xsl:attribute name="name">
-			         <xsl:value-of select="concat($prefix, local-name(), '_uri', $suffix)"/>
-			     </xsl:attribute>
-			     <xsl:value-of select="@rdf:resource"/>
-            </field>
+			  <xsl:attribute name="name">
+			    <xsl:value-of select="concat($prefix, local-name(), '_uri', $suffix)"/>
+			  </xsl:attribute>
+        <!-- Hack the isMemberOfCollection value apart to not mess with Danny Joris's solr views -->
+        <xsl:choose>
+          <xsl:when test="local-name()='isMemberOfCollection'">
+            <xsl:value-of select="substring-after(@rdf:resource, '/')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="@rdf:resource"/>
+          </xsl:otherwise>
+        </xsl:choose>
+        <!-- END OF HACK -->
+      </field>
 	    </xsl:for-each>
 	    <xsl:for-each select="$content//rdf:Description/*[not(@rdf:resource)][normalize-space(text())]">
 			<field>
