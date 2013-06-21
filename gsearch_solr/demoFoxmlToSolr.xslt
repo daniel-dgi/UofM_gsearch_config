@@ -98,6 +98,47 @@
   <!-- Index an object -->
   <xsl:template match="/foxml:digitalObject" mode="indexFedoraObject">
     <xsl:param name="PID"/>
+    <xsl:variable name="graph">
+      <xsl:call-template name="_traverse_graph">
+        <xsl:with-param name="risearch" select="concat($FEDORA, '/risearch')"/>
+        <xsl:with-param name="to_traverse_in">
+          <sparql:result>
+            <sparql:obj>
+              <xsl:attribute name="uri">info:fedora/<xsl:value-of select="@PID"/></xsl:attribute>
+            </sparql:obj>
+          </sparql:result>
+        </xsl:with-param>
+        <xsl:with-param name="query">
+          PREFIX fre: &lt;info:fedora/fedora-system:def/relations-external#&gt;
+          PREFIX fm: &lt;info:fedora/fedora-system:def/model#&gt;
+          SELECT ?obj
+          FROM &lt;#ri&gt;
+          WHERE {
+            {
+              ?sub fm:hasModel &lt;info:fedora/usc:collectionCModel&gt; {
+                ?vro fre:isMemberOfCollection ?sub .
+                ?mezz fre:isDerivativeOf ?vro .
+                ?obj fre:isDerivativeOf ?mezz
+              }
+              UNION {
+                ?vro fre:isMemberOfCollection ?sub .
+                ?obj fre:isDerivativeOf ?vro
+              }
+              UNION {
+                ?obj fre:isMemberOfCollection ?sub
+              }
+            }
+            UNION{
+              ?sub fm:hasModel &lt;info:fedora/usc:vroCModel&gt; .
+              ?obj fre:isDerivativeOf ?sub .
+            }
+            ?obj fm:state fm:Active
+            FILTER(sameTerm(?sub, &lt;%PID_URI%&gt;))
+          }
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:variable>
+
 
     <doc>
       <!-- put the object pid into a field -->
@@ -160,6 +201,7 @@
       -->
 
     </doc>
+
   </xsl:template>
 
   <!-- Delete the solr doc of an object -->
