@@ -21,6 +21,9 @@
   xmlns:mods="http://www.loc.gov/mods/v3"
   xmlns:exts="xalan://dk.defxws.fedoragsearch.server.GenericOperationsImpl"
   xmlns:islandora-exts="xalan://ca.upei.roblib.DataStreamForXSLT"
+  xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+  xmlns:set="http://exslt.org/sets"
+  xmlns:xalan="http://xml.apache.org/xalan"
             exclude-result-prefixes="exts"
   xmlns:encoder="xalan://java.net.URLEncoder">
 
@@ -33,6 +36,8 @@
   <xsl:param name="FEDORAPASS" select="repositoryName"/>
   <xsl:param name="TRUSTSTOREPATH" select="repositoryName"/>
   <xsl:param name="TRUSTSTOREPASS" select="repositoryName"/>
+
+  <xsl:variable name="FEDORA" xmlns:java_string="xalan://java.lang.String" select="substring($FEDORASOAP, 1, java_string:lastIndexOf(java_string:new(string($FEDORASOAP)), '/'))"/>
 
   <!-- These values are accessible in included xslts -->
   <xsl:variable name="PROT">http</xsl:variable>
@@ -73,6 +78,7 @@
   <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/gsearch_solr/islandora_transforms/text_to_solr.xslt"/>
   <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/gsearch_solr/islandora_transforms/XML_to_one_solr_field.xslt"/>
   <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/gsearch_solr/islandora_transforms/XML_text_nodes_to_solr.xslt"/>
+  <!--<xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/gsearch_solr/islandora_transforms/traverse-graph.xslt"/>-->
   
   <!-- Decide which objects to modify the index of -->
   <xsl:template match="/">
@@ -98,46 +104,35 @@
   <!-- Index an object -->
   <xsl:template match="/foxml:digitalObject" mode="indexFedoraObject">
     <xsl:param name="PID"/>
-    <xsl:variable name="graph">
-      <xsl:call-template name="_traverse_graph">
-        <xsl:with-param name="risearch" select="concat($FEDORA, '/risearch')"/>
-        <xsl:with-param name="to_traverse_in">
-          <sparql:result>
-            <sparql:obj>
-              <xsl:attribute name="uri">info:fedora/<xsl:value-of select="@PID"/></xsl:attribute>
-            </sparql:obj>
-          </sparql:result>
-        </xsl:with-param>
-        <xsl:with-param name="query">
-          PREFIX fre: &lt;info:fedora/fedora-system:def/relations-external#&gt;
-          PREFIX fm: &lt;info:fedora/fedora-system:def/model#&gt;
-          SELECT ?obj
-          FROM &lt;#ri&gt;
-          WHERE {
-            {
-              ?sub fm:hasModel &lt;info:fedora/usc:collectionCModel&gt; {
-                ?vro fre:isMemberOfCollection ?sub .
-                ?mezz fre:isDerivativeOf ?vro .
-                ?obj fre:isDerivativeOf ?mezz
-              }
-              UNION {
-                ?vro fre:isMemberOfCollection ?sub .
-                ?obj fre:isDerivativeOf ?vro
-              }
-              UNION {
-                ?obj fre:isMemberOfCollection ?sub
-              }
-            }
-            UNION{
-              ?sub fm:hasModel &lt;info:fedora/usc:vroCModel&gt; .
-              ?obj fre:isDerivativeOf ?sub .
-            }
-            ?obj fm:state fm:Active
-            FILTER(sameTerm(?sub, &lt;%PID_URI%&gt;))
-          }
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:variable>
+    <!--<xsl:variable name="graph">-->
+      <!--<xsl:call-template name="_traverse_graph">-->
+        <!--<xsl:with-param name="risearch" select="concat($FEDORA, '/risearch')"/>-->
+        <!--<xsl:with-param name="to_traverse_in">-->
+          <!--<sparql:result>-->
+            <!--<sparql:obj>-->
+              <!--<xsl:attribute name="uri">info:fedora/<xsl:value-of select="@PID"/></xsl:attribute>-->
+            <!--</sparql:obj>-->
+          <!--</sparql:result>-->
+        <!--</xsl:with-param>-->
+        <!--<xsl:with-param name="query">-->
+          <!--PREFIX fre: &lt;info:fedora/fedora-system:def/relations-external#&gt;-->
+          <!--PREFIX fm: &lt;info:fedora/fedora-system:def/model#&gt;-->
+          <!--SELECT ?obj-->
+          <!--FROM &lt;#ri&gt;-->
+          <!--WHERE {-->
+            <!--{-->
+              <!--?sub fre:isMemberOfCollection ?obj-->
+            <!--}-->
+            <!--UNION{-->
+              <!--?sub fre:isMemberOf ?obj-->
+            <!--}-->
+            <!--?obj fm:state fm:Active-->
+            <!--?sub fm:state fm:Active-->
+            <!--FILTER(sameTerm(?sub, &lt;%PID_URI%&gt;))-->
+          <!--}-->
+        <!--</xsl:with-param>-->
+      <!--</xsl:call-template>-->
+    <!--</xsl:variable>-->
 
 
     <doc>
@@ -188,6 +183,7 @@
           </xsl:when>
         </xsl:choose>
       </xsl:for-each>
+
       <!-- this is an example of using template modes to have multiple ways of indexing the same stream -->
       <!--
       <xsl:apply-templates select="foxml:datastream[@ID='EAC-CPF']/foxml:datastreamVersion[last()]/foxml:xmlContent//eaccpf:eac-cpf">
