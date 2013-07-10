@@ -95,13 +95,8 @@
       <xsl:param name="query"/>
       <xsl:param name="lang">itql</xsl:param>
       <xsl:param name="additional_params"/>
-      
       <xsl:variable name="encoded_query" select="encoder:encode(normalize-space($query))"/>
-
-
-
       <xsl:variable name="query_url" select="concat($risearch, '?query=', $encoded_query, '&amp;lang=', $lang, $additional_params)"/>
-        <xsl:message>DERP<xsl:value-of select="$query_url"/></xsl:message>
       <xsl:copy-of select="document($query_url)"/>
   </xsl:template>
 </xsl:stylesheet>
